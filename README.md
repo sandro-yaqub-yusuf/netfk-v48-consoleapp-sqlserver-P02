@@ -11,7 +11,7 @@
 
 ## Descrição:
 
-Pequeno projeto em DotNet Framework v4.8 (C# com Console Application) para demonstrar o uso com Dappers e BD SQL-Server (Local) para inserir grandes quantidades de dados através do recurso BULK INSERT.
+Pequeno projeto em DotNet Framework v4.8 (C# com Console Application) para demonstrar o uso com Dapper e BD SQL-Server (Local) para inserir grandes quantidades de dados através do recurso BULK INSERT.
 
 ----
 
