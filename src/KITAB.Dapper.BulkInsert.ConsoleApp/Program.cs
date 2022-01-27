@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
-using KITAB.Dapper.BulkInsert.Domains;
 using Dapper;
-using System.Data;
+using KITAB.Dapper.BulkInsert.Domains;
 
 namespace KITAB.Dapper.BulkInsert.ConsoleApp
 {
@@ -30,7 +30,9 @@ namespace KITAB.Dapper.BulkInsert.ConsoleApp
 
 			StepDelete();
 
-			StepBulkInsert();
+			StepBulkInsertHolerites();
+
+			StepBulkInsertVerbas();
 
 			Console.WriteLine("Fim - Processamento dos Holerites...\n\n");
 			Console.ReadLine();
@@ -235,9 +237,9 @@ namespace KITAB.Dapper.BulkInsert.ConsoleApp
 			}
 		}
 
-		public static void StepBulkInsert()
+		public static void StepBulkInsertHolerites()
 		{
-			Console.WriteLine("Inserindo os dados novos...\n\n");
+			Console.WriteLine("Inserindo os dados de Holerites...\n\n");
 
 			using (IDbConnection con = new SqlConnection(strConSQL))
 			{
@@ -247,17 +249,14 @@ namespace KITAB.Dapper.BulkInsert.ConsoleApp
 				
 				try
 				{
-					con.Execute(@"INSERT INTO HOLERITE (ID_TEL, CENTRO_CUSTO, FUNCIONARIO, CARGO, COD_BANCO, AGENCIA, CONTA_CORRENTE, DEPIR, 
-                                                        DEPSF, FERIAS_INICIO, FERIAS_FIM, HORAS_SEMANAIS, BASE_CALCULO_IR, BASE_CALCULO_FGTS, 
-                                                        SALARIO_BASE, SALARIO_CONTRIBUICAO_INSS, FGTS_MES, LIQUIDO_PAGAMENTO, CNPJ, MES_ANO_REFERENCIA, 
-                                                        DATA_PGTO, ID_HOLERITE, VALOR_TOTAL_CREDITO, VALOR_TOTAL_DESCONTO, CPF, TIPO)
+					con.Execute(@"INSERT  INTO HOLERITE (ID_TEL, CENTRO_CUSTO, FUNCIONARIO, CARGO, COD_BANCO, AGENCIA, CONTA_CORRENTE, DEPIR, 
+										  DEPSF, FERIAS_INICIO, FERIAS_FIM, HORAS_SEMANAIS, BASE_CALCULO_IR, BASE_CALCULO_FGTS, 
+										  SALARIO_BASE, SALARIO_CONTRIBUICAO_INSS, FGTS_MES, LIQUIDO_PAGAMENTO, CNPJ, MES_ANO_REFERENCIA, 
+										  DATA_PGTO, ID_HOLERITE, VALOR_TOTAL_CREDITO, VALOR_TOTAL_DESCONTO, CPF, TIPO)
                                   VALUES (@ID_TEL, @CENTRO_CUSTO, @FUNCIONARIO, @CARGO, @COD_BANCO, @AGENCIA, @CONTA_CORRENTE, @DEPIR, 
                                           @DEPSF, @FERIAS_INICIO, @FERIAS_FIM, @HORAS_SEMANAIS, @BASE_CALCULO_IR, @BASE_CALCULO_FGTS, 
                                           @SALARIO_BASE, @SALARIO_CONTRIBUICAO_INSS, @FGTS_MES, @LIQUIDO_PAGAMENTO, @CNPJ, @MES_ANO_REFERENCIA, 
                                           @DATA_PGTO, @ID_HOLERITE, @VALOR_TOTAL_CREDITO, @VALOR_TOTAL_DESCONTO, @CPF, @TIPO)", lstHolerites, transaction: trans);
-
-					con.Execute(@"INSERT INTO VERBAS (ID_HOLERITE, VALOR, DESCRICAO_VERBA, CODVERBA) 
-                                  VALUES (@ID_HOLERITE, @VALOR, @DESCRICAO_VERBA, @CODVERBA)", lstVerbas, transaction: trans);
 
 					trans.Commit();
 				}
@@ -267,6 +266,32 @@ namespace KITAB.Dapper.BulkInsert.ConsoleApp
 
 					trans.Rollback();
                 }
+			}
+		}
+
+		public static void StepBulkInsertVerbas()
+		{
+			Console.WriteLine("Inserindo os dados de Verbas...\n\n");
+
+			using (IDbConnection con = new SqlConnection(strConSQL))
+			{
+				if (con.State == ConnectionState.Closed) con.Open();
+
+				var trans = con.BeginTransaction();
+
+				try
+				{
+					con.Execute(@"INSERT INTO VERBAS (ID_HOLERITE, VALOR, DESCRICAO_VERBA, CODVERBA) 
+                                  VALUES (@ID_HOLERITE, @VALOR, @DESCRICAO_VERBA, @CODVERBA)", lstVerbas, transaction: trans);
+
+					trans.Commit();
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine("Ocorreu um erro ao inserir os dados novos... ERRO: " + ex.Message + "\n\n");
+
+					trans.Rollback();
+				}
 			}
 		}
 	}
